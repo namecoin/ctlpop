@@ -1,10 +1,12 @@
 # ctlpop
 
-We do these experiments so you don't have to. Do not try this at home. No really, don't.
+**We do these experiments so you don't have to. Do not try this at home. No really, don't.**
+
+ctlpop ("Certificate Trust List Populator") is a PowerShell script that downloads all of the certificates from Windows's `authrootstl.cab` and imports all of them to the Windows certificate store.  It does not require any elevated privileges (e.g. write privileges to the `AuthRoot` cert store).  It is useful for situations where you want to execute operations on the `AuthRoot` cert store, and your code assumes that all certificates have already been populated there.
 
 ## Licence
 
-Copyright (C) 2017-2020 Namecoin Developers.
+Copyright (C) 2020 Namecoin Developers.
 
 ctlpop is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
