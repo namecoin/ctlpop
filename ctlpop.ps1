@@ -48,6 +48,12 @@ foreach ($single_cert in $cert_files) {
     Write-Host "Failed to import cert!"
     exit 1
   }
+  $cert_key_authroot = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\Certificates\" + $single_cert.Name.split(".")[0]
+  $cert_key_root = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\Root\Certificates\" + $single_cert.Name.split(".")[0]
+  If ( -not (Test-Path "$cert_key_authroot") -and -not (Test-Path "$cert_key_root") ) {
+    Write-Host "Import had no effect!"
+    exit 1
+  }
 }
 
 # Measure final count of certs
