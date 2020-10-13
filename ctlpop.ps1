@@ -25,6 +25,10 @@ $initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== 
 
 # Download the new certs
 & certutil -v -syncWithWU -f -f "$sync_dir"
+If (!$?) {
+  Write-Host "syncWithWU failed!  Is your network connection down?"
+  exit 1
+}
 
 # Get the list of new certs
 $cert_files = Get-ChildItem "$sync_dir" -Filter "*.crt" | Sort-Object
