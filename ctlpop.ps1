@@ -34,7 +34,8 @@ $downloaded_cert_count = ($cert_files | Measure-Object -Line).Lines
 
 # Import the new certs to the store
 foreach ($single_cert in $cert_files) {
-  & certutil -verify $single_cert.FullName
+  Write-Host $single_cert.Name
+  & certutil -verify $single_cert.FullName | Out-Null
 }
 
 # Measure final count of certs
