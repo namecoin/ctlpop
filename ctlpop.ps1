@@ -35,6 +35,10 @@ $cert_files = Get-ChildItem "$sync_dir" -Filter "*.crt" | Sort-Object
 
 # Measure count of new certs
 $downloaded_cert_count = ($cert_files | Measure-Object -Line).Lines
+If (0 -eq $downloaded_cert_count) {
+  Write-Host "No certs downloaded from WU!  Is your network connection down?"
+  exit 1
+}
 
 # Import the new certs to the store
 foreach ($single_cert in $cert_files) {
