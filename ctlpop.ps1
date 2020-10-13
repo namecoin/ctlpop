@@ -44,6 +44,10 @@ If (0 -eq $downloaded_cert_count) {
 foreach ($single_cert in $cert_files) {
   Write-Host $single_cert.Name
   & certutil -verify $single_cert.FullName | Out-Null
+  If (!$?) {
+    Write-Host "Failed to import cert!"
+    exit 1
+  }
 }
 
 # Measure final count of certs
