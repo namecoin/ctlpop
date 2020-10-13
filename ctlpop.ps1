@@ -21,7 +21,7 @@ param (
 )
 
 # Measure initial count of certs
-$initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
 # Download the new certs
 & certutil -v -syncWithWU -f -f "$sync_dir"
@@ -57,7 +57,7 @@ foreach ($single_cert in $cert_files) {
 }
 
 # Measure final count of certs
-$final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 $diff_cert_count = $final_cert_count - $initial_cert_count
 
 Write-Host "----- Results -----"
