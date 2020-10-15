@@ -41,19 +41,26 @@ If (0 -eq $downloaded_cert_count) {
 }
 
 # Import the new certs to the store
-foreach ($single_cert in $cert_files) {
+:CERT foreach ($single_cert in $cert_files) {
   Write-Host $single_cert.Name
-  & certutil -verify $single_cert.FullName | Out-Null
-  If (!$?) {
-    Write-Host "Failed to import cert!"
-    exit 1
+  foreach ( $TryNum in 1..10 ) {
+    & certutil -verify $single_cert.FullName | Out-Null
+    If (!$?) {
+      Write-Host "Failed to import cert!  Retrying..."
+      Start-Sleep -seconds 5
+      continue
+    }
+    $cert_key_authroot = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\Certificates\" + $single_cert.Name.split(".")[0]
+    $cert_key_root = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\Root\Certificates\" + $single_cert.Name.split(".")[0]
+    If ( -not (Test-Path "$cert_key_authroot") -and -not (Test-Path "$cert_key_root") ) {
+      Write-Host "Import had no effect!  Retrying..."
+      Start-Sleep -seconds 5
+      continue
+    }
+    # Success with this cert, move onto the next cert.
+    continue CERT
   }
-  $cert_key_authroot = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\Certificates\" + $single_cert.Name.split(".")[0]
-  $cert_key_root = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\Root\Certificates\" + $single_cert.Name.split(".")[0]
-  If ( -not (Test-Path "$cert_key_authroot") -and -not (Test-Path "$cert_key_root") ) {
-    Write-Host "Import had no effect!"
-    exit 1
-  }
+  exit 1
 }
 
 # Measure final count of certs
