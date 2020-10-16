@@ -56,6 +56,7 @@ If (0 -eq $downloaded_cert_count) {
     If ( -not (Test-Path "$cert_key_authroot") -and -not (Test-Path "$cert_key_root") ) {
       Write-Host "$verify_output"
       Write-Host "Import had no effect!  Retrying..."
+      & certutil -store AuthRoot $single_cert.Name.split(".")[0]
       Get-ChildItem -path "HKLM:\SOFTWARE\Microsoft\" -recurse -ErrorAction SilentlyContinue | Where-Object {$_.Name -like ("*" + $single_cert.Name)}
       Start-Sleep -seconds 5
       continue
