@@ -44,8 +44,9 @@ If (0 -eq $downloaded_cert_count) {
 :CERT foreach ($single_cert in $cert_files) {
   Write-Host $single_cert.Name
   foreach ( $TryNum in 1..10 ) {
-    & certutil -verify $single_cert.FullName | Out-Null
+    & certutil -verify $single_cert.FullName | Set-Variable -Name verify_output
     If (!$?) {
+      Write-Host "$verify_output"
       Write-Host "Failed to import cert!  Retrying..."
       Start-Sleep -seconds 5
       continue
@@ -53,6 +54,7 @@ If (0 -eq $downloaded_cert_count) {
     $cert_key_authroot = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\Certificates\" + $single_cert.Name.split(".")[0]
     $cert_key_root = "HKLM:\SOFTWARE\Microsoft\SystemCertificates\Root\Certificates\" + $single_cert.Name.split(".")[0]
     If ( -not (Test-Path "$cert_key_authroot") -and -not (Test-Path "$cert_key_root") ) {
+      Write-Host "$verify_output"
       Write-Host "Import had no effect!  Retrying..."
       Start-Sleep -seconds 5
       continue
