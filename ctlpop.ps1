@@ -23,7 +23,8 @@ param (
 # Measure initial count of certs
 $initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
-& certutil -f -verifyCTL AuthRootWU
+Write-Host "Verifying cached registry AuthRootSTL"
+& certutil -verifyCTL AuthRoot
 
 # Measure final count of certs
 $final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
