@@ -21,28 +21,31 @@ param (
 )
 
 # Measure initial count of certs
-$initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
-# Download the new certs
-& certutil -v -syncWithWU -f -f "$sync_dir"
+Write-Host "----- Verifying Windows Update AuthRootSTL -----"
+& certutil -f -verifyCTL AuthRootWU
+$stage1_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
-# Get the list of new certs
-$cert_files = Get-ChildItem "$sync_dir" -Filter "*.crt"
+Write-Host "----- Verifying cached registry AuthRootSTL -----"
+& certutil -verifyCTL AuthRoot
+$stage2_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
-# Measure count of new certs
-$downloaded_cert_count = ($cert_files | Measure-Object -Line).Lines
+Write-Host "----- Verifying updated registry AuthRootSTL -----"
+& certutil -f -verifyCTL AuthRoot
+$stage3_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
-# Import the new certs to the store
-foreach ($single_cert in $cert_files) {
-  & certutil -verify $single_cert.FullName
-}
+Write-Host "----- Verifying CAB AuthRootSTL -----"
+& certutil -verifyCTL AuthRootWU
 
 # Measure final count of certs
-$final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 $diff_cert_count = $final_cert_count - $initial_cert_count
 
 Write-Host "----- Results -----"
 Write-Host "----- Initial certs: $initial_cert_count -----"
-Write-Host "----- Downloaded certs: $downloaded_cert_count -----"
+Write-Host "----- Stage1 certs: $stage1_cert_count -----"
+Write-Host "----- Stage2 certs: $stage2_cert_count -----"
+Write-Host "----- Stage3 certs: $stage3_cert_count -----"
 Write-Host "----- Final certs: $final_cert_count -----"
 Write-Host "----- Diff (Final-Initial): $diff_cert_count -----"

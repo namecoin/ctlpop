@@ -2,6 +2,9 @@
 set -euxo pipefail
 shopt -s nullglob globstar
 
+# Wipe the authroot.stl so that it gets refreshed.
+#powershell -command 'Remove-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\SystemCertificates\AuthRoot\AutoUpdate -Name LastSyncTime'
+
 mkdir sync1
 powershell -ExecutionPolicy Unrestricted -File "ctlpop.ps1" "-sync_dir" "sync1" | tee run1.log
 
