@@ -23,20 +23,20 @@ param (
 # Measure initial count of certs
 $initial_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
+Write-Host "----- Verifying Windows Update AuthRootSTL -----"
+& certutil -f -verifyCTL AuthRootWU
+$stage1_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+
 Write-Host "----- Verifying cached registry AuthRootSTL -----"
 & certutil -verifyCTL AuthRoot
-$stage1_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$stage2_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
 Write-Host "----- Verifying updated registry AuthRootSTL -----"
 & certutil -f -verifyCTL AuthRoot
-$stage2_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
+$stage3_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
 
 Write-Host "----- Verifying CAB AuthRootSTL -----"
 & certutil -verifyCTL AuthRootWU
-$stage3_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
-
-Write-Host "----- Verifying Windows Update AuthRootSTL -----"
-& certutil -f -verifyCTL AuthRootWU
 
 # Measure final count of certs
 $final_cert_count = (& certutil -store AuthRoot | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines + (& certutil -store Root | Select-String -Pattern "=== Certificate \d+ ===" | Measure-Object -Line).Lines
